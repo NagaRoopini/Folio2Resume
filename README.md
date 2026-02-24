@@ -85,4 +85,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 ## 🤝 Contact
-Email: battunagaroopini@gmail.com 
+Email: battunagaroopini@gmail.com
