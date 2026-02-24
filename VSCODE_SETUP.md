@@ -129,7 +129,7 @@ This will download all dependencies and compile the project.
 
 This will start both backend and frontend servers simultaneously!
 
-- **Backend**: http://localhost:8080
+- **Backend**: https://folio2resume-backend.onrender.com (or locally at http://localhost:8080)
 - **Frontend**: http://localhost:3000
 
 ### Method 2: Using Spring Boot Dashboard
@@ -175,8 +175,8 @@ python -m http.server 3000
 Once both servers are running:
 
 - **Frontend**: Open browser → http://localhost:3000
-- **Backend API**: http://localhost:8080
-- **API Test Endpoint**: http://localhost:8080/api/test (if available)
+- **Backend API**: https://folio2resume-backend.onrender.com
+- **API Test Endpoint**: https://folio2resume-backend.onrender.com/api/test (if available)
 
 ---
 
