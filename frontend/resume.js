@@ -17,7 +17,7 @@ initUser();
 
 async function initUser() {
   try {
-    const res = await fetch(`http://localhost:8080/api/auth/user/${userId}`);
+    const res = await fetch(`https://folio2resume-backend.onrender.com/api/auth/user/${userId}`);
     if (res.ok) {
       loggedInUser = await res.json();
     }
