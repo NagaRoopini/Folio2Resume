@@ -507,7 +507,7 @@
 
       try {
         console.log(`Checking for portfolios for user: ${uId}`);
-        const res = await fetch(`http://localhost:8080/api/portfolio/user/${uId}`);
+        const res = await fetch(`https://folio2resume-backend.onrender.com/api/portfolio/user/${uId}`);
 
         if (!res.ok) return; // Silent fail if no portfolios yet
 
@@ -608,7 +608,7 @@
       }
 
       try {
-        const res = await fetch("http://localhost:8080/api/portfolio/save", {
+        const res = await fetch("https://folio2resume-backend.onrender.com/api/portfolio/save", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(portfolioData)
