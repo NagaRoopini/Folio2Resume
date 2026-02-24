@@ -17,7 +17,7 @@ const Auth = {
         const id = this.getUserId();
         if (!id) return null;
         try {
-            const res = await fetch(`http://localhost:8080/api/auth/user/${id}`);
+            const res = await fetch(`https://folio2resume-backend.onrender.com/api/auth/user/${id}`);
             return await res.json();
         } catch (e) {
             return null;
