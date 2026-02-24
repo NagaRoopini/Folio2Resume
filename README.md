@@ -13,7 +13,6 @@ Folio2Resume is a sophisticated platform that bridges the gap between a professi
 - **🎨 Multi-Role Templates**: Custom-crafted designs for **Students**, **Writers**, and **Chefs**.
 - **⚡ One-Click Resume**: Instant generation of professional resumes from portfolio data.
 - **📄 A4 Perfect Export**: Optimized PDF generation ensuring a perfect single-page layout every time.
-- **🖋️ Premium Typography**: Uses the **Montserrat** font family for a sleek, modern, and readable look.
 - **🛠️ Fully Editable**: Real-time editing of resume content even after generation.
 - **🔒 Secure Data**: Robust backend handling with MariaDB and Spring Security principles.
 
@@ -86,5 +85,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 ---
 
 ## 🤝 Contact
-Email: support@folio2resume.com  
-Phone: +91 98765 43210
+Email: battunagaroopini@gmail.com 
