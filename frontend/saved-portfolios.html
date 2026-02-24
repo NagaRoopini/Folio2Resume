@@ -91,7 +91,7 @@
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/portfolio/user/${userId}`);
+        const response = await fetch(`https://folio2resume-backend.onrender.com/api/portfolio/user/${userId}`);
         if (!response.ok) throw new Error(`Status: ${response.status}`);
 
         portfolios = await response.json();
@@ -175,7 +175,7 @@
 
       const id = portfolioToDelete;
       try {
-        const res = await fetch(`http://localhost:8080/api/portfolio/delete/${id}`, { method: "DELETE" });
+        const res = await fetch(`https://folio2resume-backend.onrender.com/api/portfolio/delete/${id}`, { method: "DELETE" });
         if (res.ok) {
           portfolios = portfolios.filter(p => p.id !== id);
           render();
