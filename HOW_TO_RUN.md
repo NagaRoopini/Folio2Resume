@@ -97,7 +97,7 @@ java -jar target/backend-0.0.1-SNAPSHOT.jar
 ```
 
 ### 2.4 Verify Backend is Running
-- The backend should start on **http://localhost:8080**
+- The backend should start on **https://folio2resume-backend.onrender.com** (or locally at **http://localhost:8080**)
 - You should see logs indicating the application has started
 - Look for a message like: `Started PortfolioBackendApplication in X seconds`
 
@@ -147,7 +147,7 @@ npx http-server -p 3000
 
 ### 4.1 Check Backend API
 Open browser and test:
-- **http://localhost:8080** - Should show a response (might be error page if no root endpoint)
+- **https://folio2resume-backend.onrender.com** - Should show a response (might be error page if no root endpoint)
 
 ### 4.2 Check Frontend
 - Navigate through the application
