@@ -60,7 +60,7 @@ let activeResumeId = resumeIdParam;
 let cachedPortfolio = null;
 
 if (activeResumeId) {
-  fetch(`http://localhost:8080/api/resume/${activeResumeId}`)
+  fetch(`https://folio2resume-backend.onrender.com/api/resume/${activeResumeId}`)
     .then(async res => {
       if (!res.ok) throw new Error("Could not find this resume.");
       return res.json();
@@ -115,7 +115,7 @@ if (activeResumeId) {
       alert("Notice: " + err.message);
     });
 } else if (portfolioIdParam) {
-  fetch(`http://localhost:8080/api/portfolio/user/${userId}`)
+  fetch(`https://folio2resume-backend.onrender.com/api/portfolio/user/${userId}`)
     .then(res => res.json())
     .then(portfolios => {
       cachedPortfolio = portfolios.find(x => x.id == portfolioIdParam);
@@ -158,7 +158,7 @@ async function generateResume() {
   try {
     let p = cachedPortfolio;
     if (!p) {
-      const res = await fetch(`http://localhost:8080/api/portfolio/user/${userId}`);
+      const res = await fetch(`https://folio2resume-backend.onrender.com/api/portfolio/user/${userId}`);
       const portfolios = await res.json();
       p = portfolios.find(x => x.id == portfolioIdParam);
     }
@@ -257,7 +257,7 @@ async function saveResume() {
     createdAt: new Date().toISOString()
   };
   try {
-    const res = await fetch("http://localhost:8080/api/resume/save", {
+    const res = await fetch("https://folio2resume-backend.onrender.com/api/resume/save", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userId: parseInt(userId), resumeData: JSON.stringify(data) })
