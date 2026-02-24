@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Home | Folio2Resume</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="auth.js"></script>
+</head>
+
+<body class="home-page">
+
+    <header>
+        <nav>
+            <div class="logo">Folio2Resume</div>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li class="profile-section">
+                    <div id="profilePic" class="profile-icon" onclick="openProfile()"></div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+        <h1 class="animated-heading">Create Your Portfolio in Minutes</h1>
+        <p>Showcase your skills, projects, and achievements with a professional portfolio.</p>
+        <a href="home.html" class="get-started-btn">Get Started</a>
+    </section>
+
+
+    <!-- TEMPLATES -->
+    <section class="template-section">
+        <h2>Choose a Template</h2>
+
+        <div class="templates">
+            <div class="template" onclick="selectPortfolio('student')">
+                <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644">
+                <h3>Student Portfolio</h3>
+            </div>
+
+            <div class="template" onclick="selectPortfolio('chef')">
+                <img src="https://tse1.mm.bing.net/th/id/OIP.3ZOrhGsfQVNDHYviawj12QHaE7">
+                <h3>Chef Portfolio</h3>
+            </div>
+
+            <div class="template writer" onclick="selectPortfolio('writer')">
+                <img src="https://images.unsplash.com/photo-1501504905252-473c47e087f8">
+                <h3>Writer Portfolio</h3>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>© 2026 Folio2Resume. All rights reserved.</p>
+    </footer>
+
+    <script>
+        function selectPortfolio(type) {
+            window.location.href = "build-portfolio.html?template=" + type;
+        }
+
+        function openProfile() {
+            window.location.href = "profile.html";
+        }
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const profile = document.getElementById("profilePic");
+            if (!profile) return;
+
+            /* DATABASE DRIVEN AUTH CHECK */
+            if (!Auth.isLoggedIn()) {
+                profile.style.display = "none";
+                return;
+            }
+
+            /* FETCH USER FROM XAMPP/DATABASE */
+            const user = await Auth.getUserDetails();
+            if (user && user.name) {
+                profile.style.display = "flex";
+                profile.textContent = user.name.charAt(0).toUpperCase();
+            } else {
+                profile.textContent = "?";
+            }
+        });
+    </script>
+
+</body>
+
+</html>

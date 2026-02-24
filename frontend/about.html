@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>About Us | Folio2Resume</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="auth.js"></script>
+</head>
+
+<body class="about-page">
+
+    <header class="about-header">
+        <nav>
+            <div class="logo">Folio2Resume</div>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li class="profile-section">
+                    <a href="profile.html">
+                        <div id="headerAvatar" class="profile-icon"></div>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="about-hero">
+        <h1 class="section-title">About Folio2Resume</h1>
+        <p class="section-desc">
+            Folio2Resume is a smart platform designed to help individuals create professional portfolios and
+            generate resumes effortlessly. Instead of rebuilding resumes again and again, users maintain one
+            Folio2Resume that evolves with their career.
+        </p>
+    </div>
+
+    <div class="about-main-section" style="padding: 20px;">
+        <div class="grid">
+            <div class="card">
+                <div class="icon">🎯</div>
+                <h3>Our Mission</h3>
+                <p>To simplify portfolio and resume creation using modern web technologies, making career presentation
+                    easy for everyone.</p>
+            </div>
+            <div class="card">
+                <div class="icon">🚀</div>
+                <h3>Our Vision</h3>
+                <p>To become a one-stop platform where students, professionals and creators manage their complete career
+                    identity digitally.</p>
+            </div>
+            <div class="card">
+                <div class="icon">👥</div>
+                <h3>Who Is It For?</h3>
+                <p>Students, writers, chefs and anyone who wants to showcase skills and achievements in a structured
+                    way.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- NEW SECTION: What Makes Us Different? -->
+    <div class="about-main-section different-section" style="padding: 60px 20px; background: rgba(0,0,0,0.05);">
+        <div class="diff-container">
+            <h2 class="section-title" style="text-align: center; margin-bottom: 20px; color: #fff;">What Makes Us
+                Different?</h2>
+            <p class="section-desc"
+                style="text-align: center; max-width: 800px; margin: 0 auto 50px; color: #eee; font-size: 1.2em;">
+                Unlike traditional resume builders, Folio2Resume focuses on long-term career growth. Your data
+                stays reusable, editable and adaptable across multiple roles and templates.
+            </p>
+            <div class="grid">
+                <div class="card">
+                    <div class="icon">⚡</div>
+                    <h3>One-Time Setup</h3>
+                    <p>Enter your details once and reuse them across multiple portfolios and resume templates.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🧩</div>
+                    <h3>Role-Based Templates</h3>
+                    <p>Switch between Student, Writer, Chef or Professional templates without re-entering data.</p>
+                </div>
+                <div class="card">
+                    <div class="icon">🔒</div>
+                    <h3>Data Ownership</h3>
+                    <p>Your portfolio belongs to you. Edit, update or reuse it anytime without restrictions.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 Folio2Resume. All rights reserved.</p>
+    </footer>
+
+    <script>
+        async function updateHeader() {
+            const userId = Auth.getUserId();
+            const avatar = document.getElementById("headerAvatar");
+
+            if (userId) {
+                const user = await Auth.getUserDetails();
+                if (user && avatar) {
+                    avatar.style.display = "flex";
+                    avatar.textContent = (user.name || "User").charAt(0).toUpperCase();
+                }
+            } else if (avatar) {
+                avatar.style.display = "none";
+            }
+        }
+        document.addEventListener("DOMContentLoaded", updateHeader);
+    </script>
+
+</body>
+
+</html>

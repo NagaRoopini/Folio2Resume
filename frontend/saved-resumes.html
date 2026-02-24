@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Resumes</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css?v=1.1">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="auth.js"></script>
+</head>
+
+<body class="about-page">
+
+  <header>
+    <nav>
+      <div class="logo">Folio2Resume</div>
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li class="profile-section">
+          <div id="profilePic" class="profile-icon"
+            onclick="Auth.isLoggedIn() ? location.href='profile.html' : location.href='login.html'"></div>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="about-hero">
+    <h1>Saved Resumes</h1>
+    <p>Your generated resumes</p>
+  </section>
+
+  <div class="container" style="background:transparent">
+    <div id="list"></div>
+  </div>
+
+  <!-- Global Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Professional Delete Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <h2>Delete Resume?</h2>
+      <p>Are you sure you want to permanently delete this resume? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button id="confirmDeleteBtn" class="modal-btn confirm-delete">Delete Now</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+  <script>
+    const list = document.getElementById("list");
+    const deleteModal = document.getElementById("deleteModal");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const toastContainer = document.getElementById("toastContainer");
+    let resumeToDelete = null;
+    let resumes = [];
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-circle-xmark'}"></i>
+        <span>${message}</span>
+      `;
+      toastContainer.appendChild(toast);
+
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+
+    async function fetchResumes() {
+      const userId = Auth.getUserId();
+      if (!userId) return;
+
+      try {
+        const res = await fetch(`http://localhost:8080/api/resume/user/${userId}`);
+        resumes = await res.json();
+        render();
+      } catch (e) {
+        console.error(e);
+        list.innerHTML = "<div class='empty'>Error loading resumes from database</div>";
+      }
+    }
+
+    fetchResumes();
+
+    function render() {
+      list.innerHTML = "";
+
+      if (resumes.length === 0) {
+        list.innerHTML = "<div class='empty'>No resumes saved in database</div>";
+        return;
+      }
+
+      list.className = "saved-grid";
+
+      resumes.forEach(r => {
+        let data;
+        try {
+          data = typeof r.resumeData === 'string' ? JSON.parse(r.resumeData) : r.resumeData;
+        } catch (e) {
+          console.error("Parse error for resume", r.id, e);
+          data = { name: "Unnamed Resume", createdAt: Date.now() };
+        }
+
+        const resumeName = data.name || "Unnamed Resume";
+        const dateStr = new Date(data.createdAt || Date.now()).toLocaleString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        list.innerHTML += `
+      <div class="portfolio-card shadow-lg">
+        <div class="card-header">
+           <span class="template-tag">RESUME</span>
+           <span class="date-tag">${dateStr}</span>
+        </div>
+        <div class="card-body">
+           <h3>${resumeName}</h3>
+           <p>Your saved resume with contact info and experience.</p>
+        </div>
+        <div class="card-footer">
+          <button class="action-btn open" onclick="openResume(${r.id})" title="View Resume">
+            <i class="fa-solid fa-eye"></i> View
+          </button>
+          <button class="action-btn build" onclick="downloadSavedResume(${r.id})" title="Download PDF">
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+          <button class="action-btn delete" onclick="showDeleteModal(${r.id})" title="Delete Resume">
+            <i class="fa-solid fa-trash-can"></i> Delete
+          </button>
+        </div>
+      </div>
+    `;
+      });
+    }
+
+    function openResume(id) {
+      window.location.href = "build-resume.html?resumeId=" + id;
+    }
+
+    function downloadSavedResume(id) {
+      window.location.href = `build-resume.html?resumeId=${id}&download=true`;
+    }
+
+    function showDeleteModal(id) {
+      resumeToDelete = id;
+      deleteModal.classList.add("active");
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.remove("active");
+      resumeToDelete = null;
+    }
+
+    confirmDeleteBtn.onclick = async () => {
+      if (!resumeToDelete) return;
+
+      const id = resumeToDelete;
+      try {
+        const res = await fetch(`http://localhost:8080/api/resume/delete/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          resumes = resumes.filter(r => r.id !== id);
+          render();
+          closeDeleteModal();
+          showToast("Your resume has successfully deleted!");
+        } else {
+          showToast("Failed to delete resume.", "error");
+        }
+      } catch (e) {
+        showToast("Error connecting to server.", "error");
+      }
+    };
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = document.getElementById("profilePic");
+      if (!profile) return;
+
+      if (!Auth.isLoggedIn()) {
+        profile.style.display = "none";
+        return;
+      }
+
+      const user = await Auth.getUserDetails();
+      if (user) {
+        profile.textContent = (user.name || "User").charAt(0).toUpperCase();
+      }
+    });
+
+    // Close modal if clicking outside content
+    deleteModal.onclick = (e) => {
+      if (e.target === deleteModal) closeDeleteModal();
+    };
+  </script>
+</body>
+
+</html>

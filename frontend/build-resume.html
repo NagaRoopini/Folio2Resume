@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Build Resume</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="styles.css?v=1.1">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <style>
+    /* ACTIONS BAR */
+    .resume-actions {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 15px 30px;
+      border-radius: 50px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      display: flex;
+      gap: 20px;
+      z-index: 5000;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .professional-action-btn {
+      padding: 12px 28px;
+      border-radius: 25px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .professional-action-btn:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .professional-action-btn.save {
+      background: #10b981;
+      color: white;
+    }
+
+    .professional-action-btn.download {
+      background: #2563eb;
+      color: white;
+    }
+
+    /* LOADING SPINNER */
+    #loadingStatus {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: rgba(255, 255, 255, 1);
+      padding: 30px 40px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      z-index: 6000;
+      border: 2px solid #2563eb;
+    }
+
+    .resume-canvas {
+      border: 1px solid #cbd5e1;
+      /* Temporary border to see it */
+      box-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+    }
+  </style>
+</head>
+
+<body class="build-resume-page">
+
+  <header class="resume-header">
+    <nav>
+      <div class="logo">Folio2Resume</div>
+      <a href="saved-portfolios.html" class="back-btn">← Back</a>
+    </nav>
+  </header>
+
+  <!-- EXTRA DETAILS FORM (Generated from Portfolio) -->
+  <div id="extraForm">
+    <h1>Auto Resume Builder</h1>
+
+    <div class="input-group">
+      <label>Phone</label>
+      <input id="phone" maxlength="10" placeholder="e.g. 1234567891">
+      <small id="phoneError" style="color:#dc2626; display:none;">
+        Please enter a valid 10-digit number.
+      </small>
+    </div>
+
+    <div class="input-group">
+      <label>Address</label>
+      <textarea id="address" placeholder="e.g. Vijayawada"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label>Languages (comma separated)</label>
+      <input id="languages" placeholder="e.g. english, hindi">
+    </div>
+
+    <button id="genBtn" class="get-started-btn" onclick="generateResume()">
+      Generate Resume
+    </button>
+    <button id="updateBtn" class="get-started-btn" style="display:none; background:#0ea5e9" onclick="generateResume()">
+      Update Details
+    </button>
+  </div>
+
+  <div id="loadingStatus" style="text-align:center; margin-top:50px; display:none;">
+    <i class="fa fa-spinner fa-spin" style="font-size:2em; color:#2563eb;"></i>
+    <p>Loading your resume...</p>
+  </div>
+
+  <!-- RESUME -->
+  <div id="resume" class="resume-canvas" style="display:none">
+
+    <aside class="resume-left">
+      <div class="image-box">
+        <img id="rPhoto" class="profile-img">
+        <div class="edit-overlay" onclick="openPhotoPicker()">Edit</div>
+        <input type="file" id="hiddenPhotoInput" accept="image/*" hidden>
+      </div>
+
+      <div class="side-block">
+        <h4><i class="fa fa-user"></i> Contact</h4>
+        <p><i class="fa fa-phone"></i> <span id="rPhone"></span></p>
+        <p><i class="fa fa-envelope"></i> <span id="rEmail"></span></p>
+        <p><i class="fa fa-location-dot"></i> <span id="rAddress"></span></p>
+      </div>
+
+      <div class="side-block">
+        <h4><i class="fa fa-star"></i> Skills</h4>
+        <ul id="rSkills"></ul>
+      </div>
+
+      <div class="side-block">
+        <h4><i class="fa fa-language"></i> Languages</h4>
+        <ul id="rLanguages"></ul>
+      </div>
+    </aside>
+
+    <main class="resume-right">
+      <h1 id="rName" contenteditable="true"></h1>
+      <p class="job-title" contenteditable="true">Professional Profile</p>
+
+      <section>
+        <h3>About Me</h3>
+        <p id="rAbout" contenteditable="true"></p>
+      </section>
+
+      <section>
+        <h3>Education</h3>
+        <p id="rEducation" contenteditable="true"></p>
+      </section>
+
+      <section>
+        <h3>Internships / Experience</h3>
+        <ul id="rInternships"></ul>
+      </section>
+
+      <section>
+        <h3>Projects</h3>
+        <ul id="rProjects"></ul>
+      </section>
+    </main>
+  </div>
+
+  <div id="saveMessage" class="save-message">Resume saved successfully</div>
+
+  <!-- ACTION BAR -->
+  <div id="actionBar" class="resume-actions" style="display:none">
+    <button class="professional-action-btn save" onclick="saveResume()">
+      <i class="fa-solid fa-floppy-disk"></i> Save Resume
+    </button>
+  </div>
+
+
+  <script src="resume.js"></script>
+</body>
+
+</html>

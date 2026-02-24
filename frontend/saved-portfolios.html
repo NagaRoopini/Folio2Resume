@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Saved Portfolios</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Playfair+Display:wght@600;700&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="auth.js"></script>
+</head>
+
+<body class="about-page">
+
+  <header>
+    <nav>
+      <div class="logo">Folio2Resume</div>
+      <ul>
+        <li><a href="home.html">Home</a></li>
+        <li><a href="about.html">About Us</a></li>
+        <li class="profile-section">
+          <div id="profilePic" class="profile-icon"
+            onclick="Auth.isLoggedIn() ? location.href='profile.html' : location.href='login.html'"></div>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="about-hero">
+    <h1>Saved Portfolios</h1>
+    <p>Your previously created portfolios, ready to open or manage.</p>
+  </section>
+
+  <div class="container" style="background:transparent">
+    <div id="list"></div>
+  </div>
+
+  <!-- Global Toast Container -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- Professional Delete Modal -->
+  <div id="deleteModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-icon">
+        <i class="fa-solid fa-circle-exclamation"></i>
+      </div>
+      <h2>Delete Portfolio?</h2>
+      <p>Are you sure you want to permanently delete this portfolio? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="modal-btn cancel" onclick="closeDeleteModal()">Cancel</button>
+        <button id="confirmDeleteBtn" class="modal-btn confirm-delete">Delete Now</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://kit.fontawesome.com/your-font-awesome-kit.js" crossorigin="anonymous"></script>
+  <script>
+    const list = document.getElementById("list");
+    const deleteModal = document.getElementById("deleteModal");
+    const confirmDeleteBtn = document.getElementById("confirmDeleteBtn");
+    const toastContainer = document.getElementById("toastContainer");
+    let portfolioToDelete = null;
+    let portfolios = [];
+
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="fa-solid fa-circle-check"></i>
+        <span>${message}</span>
+      `;
+      toastContainer.appendChild(toast);
+
+      // Trigger animation
+      setTimeout(() => toast.classList.add('show'), 100);
+
+      // Remove toast
+      setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 400);
+      }, 3000);
+    }
+
+    async function fetchPortfolios() {
+      const userId = Auth.getUserId();
+      if (!userId) {
+        list.innerHTML = "<div class='empty'><p><i class='fa-solid fa-circle-exclamation'></i> Please login to see your portfolios</p></div>";
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/portfolio/user/${userId}`);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+
+        portfolios = await response.json();
+        render();
+      } catch (err) {
+        console.error("Dashboard fetch error:", err);
+        list.innerHTML = `<div class='empty'><p><i class='fa-solid fa-triangle-exclamation'></i> Error: ${err.message}. Ensure Backend & XAMPP are running.</p></div>`;
+      }
+    }
+
+    fetchPortfolios();
+
+    function render() {
+      list.innerHTML = "";
+
+      if (portfolios.length === 0) {
+        list.innerHTML = "<div class='empty'>No portfolios saved in database</div>";
+        return;
+      }
+
+      // Add a grid container for cards
+      list.className = "saved-grid";
+
+      portfolios.forEach(p => {
+        let data;
+        try {
+          data = JSON.parse(p.portfolioData);
+        } catch (e) {
+          console.error("Failed to parse portfolio data:", e);
+          data = { template: "student", createdAt: new Date() };
+        }
+
+        const templateLower = (data.template || "student").toLowerCase();
+        const templateDisplay = templateLower.charAt(0).toUpperCase() + templateLower.slice(1);
+        const dateStr = new Date(data.createdAt || Date.now()).toLocaleDateString('en-GB', {
+          day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+        });
+
+        list.innerHTML += `
+      <div class="portfolio-card shadow-lg">
+        <div class="card-header">
+           <span class="template-tag">${templateDisplay.toUpperCase()}</span>
+           <span class="date-tag">${dateStr}</span>
+        </div>
+        <div class="card-body">
+           <h3>My ${templateDisplay} Portfolio</h3>
+           <p>Last modified and saved to Folio2Resume cloud.</p>
+        </div>
+        <div class="card-footer">
+          <button class="action-btn open" onclick="openPortfolio(${p.id}, '${templateLower}')" title="View Portfolio">
+            <i class="fa-solid fa-eye"></i> View Portfolio
+          </button>
+          <button class="action-btn build" onclick="buildResume(${p.id})" title="Generate Resume from this Portfolio">
+            <i class="fa-solid fa-file-pdf"></i> Build Resume
+          </button>
+          <button class="action-btn delete" onclick="showDeleteModal(${p.id})" title="Delete Portfolio">
+            <i class="fa-solid fa-trash-can"></i> Delete
+          </button>
+        </div>
+      </div>
+    `;
+      });
+    }
+
+    function openPortfolio(id, template) {
+      window.location.href = `build-portfolio.html?template=${template}&portfolioId=${id}&mode=view`;
+    }
+
+    function showDeleteModal(id) {
+      portfolioToDelete = id;
+      deleteModal.classList.add("active");
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.remove("active");
+      portfolioToDelete = null;
+    }
+
+    confirmDeleteBtn.onclick = async () => {
+      if (!portfolioToDelete) return;
+
+      const id = portfolioToDelete;
+      try {
+        const res = await fetch(`http://localhost:8080/api/portfolio/delete/${id}`, { method: "DELETE" });
+        if (res.ok) {
+          portfolios = portfolios.filter(p => p.id !== id);
+          render();
+          closeDeleteModal();
+          showToast("Your portfolio has successfully deleted!");
+        } else {
+          showToast("Failed to delete portfolio.", "error");
+        }
+      } catch (err) {
+        showToast("Error connecting to server.", "error");
+      }
+    };
+
+    function buildResume(id) {
+      window.location.href = `build-resume.html?portfolioId=${id}`;
+    }
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      const profile = document.getElementById("profilePic");
+      if (!profile) return;
+
+      if (!Auth.isLoggedIn()) {
+        profile.style.display = "none";
+        return;
+      }
+
+      const user = await Auth.getUserDetails();
+      if (user) {
+        profile.textContent = (user.name || "User").charAt(0).toUpperCase();
+      }
+    });
+
+    // Close modal if clicking outside content
+    deleteModal.onclick = (e) => {
+      if (e.target === deleteModal) closeDeleteModal();
+    };
+  </script>
+</body>
+
+</html>

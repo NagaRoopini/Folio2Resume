@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>User Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <script src="auth.js"></script>
+</head>
+
+<body class="home-page profile-page">
+
+    <header>
+        <nav>
+            <div class="logo">Folio2Resume</div>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li><a href="saved-portfolios.html">Saved Portfolios</a></li>
+                <li><a href="saved-resumes.html">Saved Resumes</a></li>
+                <li class="profile-section">
+                    <div id="headerAvatar" class="profile-icon"></div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="profile-container">
+        <div class="profile-card">
+
+            <div id="avatar" class="avatar-circle"></div>
+
+            <h2>User Profile</h2>
+            <p><strong>Name:</strong> <span id="name"></span></p>
+            <p><strong>Email:</strong> <span id="email"></span></p>
+
+            <div class="profile-actions">
+                <button class="edit-btn" onclick="editProfile()">Edit Name</button>
+                <button class="edit-btn" onclick="openPasswordModal()">Change Password</button>
+                <button class="del-btn" onclick="openDeleteModal()">Delete Account</button>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+
+            <div id="profileMsg" class="form-message"></div>
+        </div>
+    </div>
+
+    <!-- CHANGE PASSWORD MODAL -->
+    <div id="passwordModal" class="modal">
+        <div class="modal-content">
+            <h3>Change Password</h3>
+
+            <div id="passwordMsg" class="form-message"></div>
+
+            <input type="password" id="oldPassword" placeholder="Current Password">
+            <input type="password" id="newPassword" placeholder="New Password">
+            <input type="password" id="confirmPassword" placeholder="Confirm New Password">
+
+            <div class="modal-actions">
+                <button class="edit-btn" onclick="submitPassword()">Update</button>
+                <button class="delete-btn" onclick="closePasswordModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- DELETE ACCOUNT MODAL -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Delete Account</h3>
+
+            <div id="deleteMsg" class="form-message"></div>
+
+            <p style="font-size:0.95em;color:#444;margin-bottom:10px;">
+                This action is permanent. Please confirm your password.
+            </p>
+
+            <input type="password" id="deletePassword" placeholder="Enter Password">
+
+            <div class="modal-actions">
+                <button class="delete-btn" onclick="confirmDelete()">Delete</button>
+                <button class="edit-btn" onclick="closeDeleteModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT NAME MODAL -->
+    <div id="editNameModal" class="modal">
+        <div class="modal-content">
+            <h3>Edit Name</h3>
+
+            <div id="editNameMsg" class="form-message"></div>
+
+            <input type="text" id="newUsername" placeholder="Enter new name">
+
+            <div class="modal-actions">
+                <button class="edit-btn" onclick="submitEditName()">Update</button>
+                <button class="delete-btn" onclick="closeEditNameModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        let currentUser = null;
+
+        /* DATABASE DRIVEN LOAD */
+        async function loadProfile() {
+            if (!Auth.isLoggedIn()) {
+                window.location.href = "login.html";
+                return;
+            }
+
+            currentUser = await Auth.getUserDetails();
+            if (!currentUser) {
+                Auth.logout();
+                return;
+            }
+
+            /* DISPLAY DATA */
+            const username = currentUser.name || "User";
+            document.getElementById("name").innerText = username;
+            document.getElementById("email").innerText = currentUser.email;
+
+            /* AVATAR */
+            const letter = username.charAt(0).toUpperCase();
+            document.getElementById("avatar").innerText = letter;
+            const headerAvatar = document.getElementById("headerAvatar");
+            if (headerAvatar) headerAvatar.innerText = letter;
+        }
+
+        window.onload = loadProfile;
+
+        /* EDIT NAME MODAL */
+        function editProfile() {
+            document.getElementById("editNameModal").style.display = "flex";
+            document.getElementById("newUsername").value = currentUser.name;
+        }
+
+        function closeEditNameModal() {
+            document.getElementById("editNameModal").style.display = "none";
+            document.getElementById("editNameMsg").style.display = "none";
+            document.getElementById("newUsername").value = "";
+        }
+
+        function showEditNameMsg(text, type) {
+            const msg = document.getElementById("editNameMsg");
+            msg.innerText = text;
+            msg.className = "form-message " + type;
+            msg.style.display = "block";
+        }
+
+        async function submitEditName() {
+            const newName = document.getElementById("newUsername").value.trim();
+
+            if (newName.length < 3) {
+                showEditNameMsg("Name must be at least 3 characters", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/auth/update-profile/${currentUser.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: newName })
+                });
+
+                if (response.ok) {
+                    currentUser.name = newName;
+                    document.getElementById("name").innerText = newName;
+                    const letter = newName.charAt(0).toUpperCase();
+                    document.getElementById("avatar").innerText = letter;
+                    document.getElementById("headerAvatar").innerText = letter;
+
+                    showEditNameMsg("Name updated successfully", "success");
+                    setTimeout(closeEditNameModal, 1200);
+                } else {
+                    showEditNameMsg("Update failed", "error");
+                }
+            } catch (e) {
+                showEditNameMsg("Server error", "error");
+            }
+        }
+
+
+        /* PASSWORD MODAL */
+        function openPasswordModal() {
+            document.getElementById("passwordModal").style.display = "flex";
+        }
+
+        function closePasswordModal() {
+            document.getElementById("passwordModal").style.display = "none";
+            document.getElementById("passwordMsg").style.display = "none";
+            document.getElementById("oldPassword").value = "";
+            document.getElementById("newPassword").value = "";
+            document.getElementById("confirmPassword").value = "";
+        }
+
+        function showPasswordMsg(text, type) {
+            const msg = document.getElementById("passwordMsg");
+            msg.innerText = text;
+            msg.className = "form-message " + type;
+            msg.style.display = "block";
+        }
+
+        async function submitPassword() {
+            const oldPass = document.getElementById("oldPassword").value;
+            const newPass = document.getElementById("newPassword").value;
+            const confirmPass = document.getElementById("confirmPassword").value;
+
+            if (newPass.length < 6) {
+                showPasswordMsg("Password must be at least 6 characters", "error");
+                return;
+            }
+            if (newPass !== confirmPass) {
+                showPasswordMsg("Passwords do not match", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/auth/change-password/${currentUser.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ oldPassword: oldPass, newPassword: newPass })
+                });
+
+                if (response.ok) {
+                    showPasswordMsg("Password updated successfully", "success");
+                    setTimeout(closePasswordModal, 1500);
+                } else {
+                    const err = await response.text();
+                    showPasswordMsg(err || "Update failed", "error");
+                }
+            } catch (e) {
+                showPasswordMsg("Server error", "error");
+            }
+        }
+
+        /* DELETE MODAL */
+        function openDeleteModal() {
+            document.getElementById("deleteModal").style.display = "flex";
+        }
+
+        function closeDeleteModal() {
+            document.getElementById("deleteModal").style.display = "none";
+            document.getElementById("deleteMsg").style.display = "none";
+            document.getElementById("deletePassword").value = "";
+        }
+
+        function showDeleteMsg(text, type) {
+            const msg = document.getElementById("deleteMsg");
+            msg.innerText = text;
+            msg.className = "form-message " + type;
+            msg.style.display = "block";
+        }
+
+        async function confirmDelete() {
+            const pass = document.getElementById("deletePassword").value;
+            if (!pass) {
+                showDeleteMsg("Incorrect password", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://localhost:8080/api/auth/delete-account/${currentUser.id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: pass })
+                });
+
+                if (response.ok) {
+                    showDeleteMsg("Account deleted successfully", "success");
+                    setTimeout(() => {
+                        Auth.logout();
+                    }, 1500);
+                } else {
+                    const err = await response.text();
+                    showDeleteMsg(err || "Failed to delete", "error");
+                }
+            } catch (e) {
+                showDeleteMsg("Server error", "error");
+            }
+        }
+
+        /* LOGOUT */
+        function logout() {
+            Auth.logout();
+        }
+    </script>
+
+</body>
+
+</html>

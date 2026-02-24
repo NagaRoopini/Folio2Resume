@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Folio2Resume</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- PDF LIBRARY -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script src="auth.js"></script>
+
+  <style>
+    /* BASE / STUDENT  */
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", Arial, sans-serif;
+      background: #eef3fb;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 60px;
+      background: linear-gradient(90deg, #7a29d1, #3174e9);
+      color: #fff
+    }
+
+    header a {
+      color: #fff;
+      text-decoration: none;
+      margin-left: 20px
+    }
+
+    .slider {
+      overflow: hidden
+    }
+
+    .slides {
+      display: flex;
+      transition: .45s ease
+    }
+
+    .slide {
+      min-width: 100%;
+      height: 100vh;
+      display: flex
+    }
+
+    .left {
+      width: 60%;
+      background: #fff;
+      padding: 90px 70px;
+      position: relative
+    }
+
+    .left::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 140px;
+      background: linear-gradient(120deg, #0a3ccf, #2aa7ff);
+      clip-path: polygon(0 0, 100% 0, 85% 100%, 0 65%)
+    }
+
+    .left h1 {
+      margin-top: 90px;
+      font-size: 50px
+    }
+
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-top: 25px;
+      border: none;
+      resize: none;
+      background: #f3f6ff;
+      padding: 18px;
+      border-radius: 12px;
+      font-size: 17px
+    }
+
+    .right {
+      width: 40%;
+      background: #cfe3ff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative
+    }
+
+    .image-box {
+      background: #fff;
+      padding: 16px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .15);
+      position: relative
+    }
+
+    .profile-img {
+      width: 280px;
+      height: 280px;
+      object-fit: cover;
+      border-radius: 12px
+    }
+
+    .edit-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, .45);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      cursor: pointer;
+      border-radius: 16px
+    }
+
+    .image-box:hover .edit-overlay {
+      opacity: 1
+    }
+
+    input {
+      display: none
+    }
+
+    /* NAV */
+    .nav {
+      position: fixed;
+      bottom: 35px;
+      right: 35px;
+      display: flex;
+      gap: 12px
+    }
+
+    .nav button {
+      background: #0a3ccf;
+      color: #fff;
+      border: none;
+      padding: 14px 18px;
+      font-size: 18px;
+      border-radius: 50%;
+      cursor: pointer
+    }
+
+    .nav button.disabled {
+      opacity: .4;
+      pointer-events: none
+    }
+
+    /* WRITER */
+    body.writer-mode .nav button {
+      background: #f4b6a6;
+      color: #4a2c2a;
+    }
+
+    body.writer-mode .nav button:hover {
+      background: #f2a08a;
+      transform: scale(1.08);
+    }
+
+    body.writer-mode {
+      background: #fff7f3;
+      font-family: 'Georgia', serif
+    }
+
+    body.writer-mode header {
+      background: linear-gradient(90deg, #f7b199, #f48c6c)
+    }
+
+    body.writer-mode .left {
+      background: #fff7f3
+    }
+
+    body.writer-mode .left::before {
+      display: none
+    }
+
+    body.writer-mode textarea {
+      background: #fff
+    }
+
+    body.writer-mode .right {
+      background: #fff7f3
+    }
+
+    body.writer-mode .image-box {
+      background: transparent;
+      padding: 0;
+      box-shadow: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    body.writer-mode .profile-img {
+      width: 260px;
+      height: 380px;
+      object-fit: cover;
+      border-radius: 50%;
+      border: 2px solid #e8b8a6;
+      transform: rotate(8deg);
+    }
+
+    body.writer-mode .right::before {
+      content: '';
+      position: absolute;
+      width: 900px;
+      height: 900px;
+      border: 3px solid rgba(255, 170, 150, .6);
+      border-radius: 50%;
+      top: -520px;
+      right: -480px
+    }
+
+    body.writer-mode .right::after {
+      content: '';
+      position: absolute;
+      width: 520px;
+      height: 520px;
+      background: rgba(255, 195, 175, .45);
+      border-radius: 50%;
+      bottom: -260px;
+      right: -260px
+    }
+
+    /* CHEF */
+    body.chef-mode {
+      background: #f6f2ec
+    }
+
+    body.chef-mode header {
+      background: linear-gradient(90deg, #1f1f1f, #3a2f2a)
+    }
+
+    body.chef-mode .left {
+      background: #f6f2ec
+    }
+
+    body.chef-mode .left::before {
+      display: none
+    }
+
+    body.chef-mode textarea {
+      background: #fff;
+      border: 1px solid #e2d6c8
+    }
+
+    body.chef-mode .right {
+      background: #efe7dd
+    }
+
+    body.chef-mode .image-box {
+      border-radius: 50%;
+      padding: 14px
+    }
+
+    body.chef-mode .profile-img {
+      border-radius: 50%;
+      border: 6px solid #c49a6c
+    }
+
+    body.chef-mode .nav button {
+      background: #c49a6c
+    }
+
+    /* SAVE BUTTON STYLING */
+    .professional-save-btn {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      font-size: 18px;
+      font-weight: 600;
+      border-radius: 50px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+      margin-top: 20px;
+    }
+
+    .professional-save-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+      filter: brightness(1.1);
+    }
+
+    .professional-save-btn:active {
+      transform: translateY(-1px);
+    }
+
+    body.writer-mode .professional-save-btn {
+      background: linear-gradient(135deg, #f48c6c, #e67e5f);
+      box-shadow: 0 4px 15px rgba(244, 140, 108, 0.3);
+    }
+
+    body.chef-mode .professional-save-btn {
+      background: linear-gradient(135deg, #c49a6c, #a67c52);
+      box-shadow: 0 4px 15px rgba(196, 154, 108, 0.3);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <b>Folio2Resume</b>
+    <div>
+      <a href="home.html">Home</a>
+      <a href="login.html">Logout</a>
+    </div>
+  </header>
+
+  <div class="slider">
+    <div class="slides" id="slides"></div>
+  </div>
+
+  <div class="nav">
+    <button id="prevBtn" onclick="prev()">‹</button>
+    <button id="nextBtn" onclick="next()">›</button>
+  </div>
+
+  <script>
+    /* TEMPLATE DATA */
+    const titles = [
+      "Introduction", "About Me", "Education", "Skills",
+      "Projects", "Internships / Experience", "Goals", "Thank You"
+    ];
+
+    const templates = {
+      student: {
+        content: [
+          "I am a motivated IT student passionate about software development.",
+          "I enjoy learning new technologies and building projects.",
+          "B.Tech in Information Technology (2022–2026).",
+          "Java, Python, HTML, CSS, DBMS, OOPS.",
+          "Portfolio Website, AI Projects, Management Systems.",
+          "Google & Juniper Internships.",
+          "To become a skilled software engineer."
+        ],
+        images: [
+          "images/student_intro.jpg",
+          "images/student_about.avif",
+          "images/student_education.jpg",
+          "images/student_skills.jpg",
+          "images/student_projects.jpg",
+          "images/student_intern.jpg",
+          "images/student_goals.jpg",
+          "images/student_thanks.jpg"
+        ]
+      },
+      writer: {
+        content: [
+          "I am a passionate writer who believes in the power of words.",
+          "I enjoy storytelling, blogging, and expressing ideas creatively.",
+          "I have a strong educational background in language and communication.",
+          "Creative Writing, Blogging, Editing, Proofreading.",
+          "Blogs, Articles, Content Portfolios.",
+          "Freelance Writing and Content Internships.",
+          "To publish meaningful and impactful content."
+        ],
+        images: [
+          "images/writer_intro.jpg",
+          "images/writer_about.jpg",
+          "images/writer_education.jpg",
+          "images/writer_skills.jpg",
+          "images/writer_projects.jpg",
+          "images/writer_intern.jpg",
+          "images/writer_goals.jpg",
+          "images/writer_thanks.jpg"
+        ]
+      },
+      chef: {
+        content: [
+          "Professional chef with culinary expertise.",
+          "Creative and disciplined kitchen professional.",
+          "Certified culinary training.",
+          "Italian cuisine, plating, baking.",
+          "Signature dishes & menus.",
+          "Restaurant & hotel experience.",
+          "To open my own restaurant."
+        ],
+        images: [
+          "images/chef_intro.jpg",
+          "images/chef_about.jpg",
+          "images/chef_education.jpg",
+          "images/chef_skills.jpg",
+          "images/chef_projects.jpg",
+          "images/chef_intern.jpg",
+          "images/chef_goals.jpg",
+          "images/chef_thanks.jpg"
+        ]
+      }
+    };
+
+    /* LOAD TEMPLATE */
+    const urlParams = new URLSearchParams(location.search);
+    const template = urlParams.get("template") || "student";
+    const portfolioIdFromUrl = urlParams.get("portfolioId");
+    const isViewMode = urlParams.get("mode") === "view";
+
+    if (isViewMode) {
+      document.addEventListener("DOMContentLoaded", () => {
+        const header = document.querySelector("header");
+        const badge = document.createElement("span");
+        badge.innerHTML = '<i class="fa-solid fa-eye"></i> View Mode';
+        badge.style.background = "rgba(255,255,255,0.2)";
+        badge.style.padding = "4px 12px";
+        badge.style.borderRadius = "20px";
+        badge.style.fontSize = "14px";
+        badge.style.marginLeft = "15px";
+        badge.style.border = "1px solid rgba(255,255,255,0.4)";
+        header.querySelector("b").appendChild(badge);
+      });
+    }
+
+    if (template === "writer") document.body.classList.add("writer-mode");
+    if (template === "chef") document.body.classList.add("chef-mode");
+
+    const data = templates[template];
+    const slides = document.getElementById("slides");
+
+    /* BUILD SLIDES */
+    titles.forEach((t, i) => {
+      slides.innerHTML += `
+ <div class="slide">
+  <div class="left">
+   <h1>${t}</h1>
+   ${t === "Thank You"
+          ? `<p style="font-size:22px;margin-top:30px;">For visiting my portfolio</p>
+      <div style="margin-top:40px;display:flex;gap:20px;">
+        <div id="finalActions">
+          ${isViewMode ? '' : `
+          <button class="professional-save-btn" onclick="savePortfolio()">
+            <i class="fa-solid fa-cloud-arrow-up"></i> Save Portfolio
+          </button>`}
+        </div>
+      </div>`
+          : `<textarea placeholder="Enter your ${t.toLowerCase()} here..." ${isViewMode ? 'disabled style="background: #f8fafc; cursor: default;"' : ''}></textarea>`}
+  </div>
+  <div class="right">
+   <div class="image-box" ${isViewMode ? 'style="pointer-events: none;"' : ''}>
+    <img class="profile-img" src="${data.images[i]}">
+    <div class="edit-overlay" ${isViewMode ? 'style="display: none;"' : ''} onclick="this.nextElementSibling.click()">Edit</div>
+    <input type="file" accept="image/*" onchange="changePhoto(this)">
+   </div>
+  </div>
+ </div>`;
+    });
+
+    /* GLOBAL STATE */
+    let currentPortfolioId = new URLSearchParams(location.search).get("portfolioId");
+    let isSaving = false;
+
+    /* SLIDER */
+    let index = 0;
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const LAST = slides.children.length - 1;
+
+    function update() {
+      slides.style.transform = `translateX(-${index * 100}%)`;
+      prevBtn.classList.toggle("disabled", index === 0);
+      nextBtn.classList.toggle("disabled", index === LAST);
+    }
+    function next() { if (index === LAST) return; index++; update() }
+    function prev() { if (index === 0) return; index--; update() }
+    update();
+
+    /* IMAGE EDIT */
+    function changePhoto(input) {
+      if (isViewMode) return;
+      const f = input.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = e => input.parentElement.querySelector("img").src = e.target.result;
+      r.readAsDataURL(f);
+    }
+
+    /* PDF */
+    function downloadPDF() {
+      html2pdf().from(document.body).set({
+        margin: 0,
+        filename: "MyPortfolio.pdf",
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: "landscape" }
+      }).save();
+    }
+
+    /* LOAD SAVED PORTFOLIO - Called after slides are rendered */
+    async function loadSavedPortfolio() {
+      const uId = sessionStorage.getItem("userId");
+      if (!uId) return; // Not logged in
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const portfolioId = urlParams.get("portfolioId");
+      const currentTemplate = urlParams.get("template") || "student";
+
+      try {
+        console.log(`Checking for portfolios for user: ${uId}`);
+        const res = await fetch(`http://localhost:8080/api/portfolio/user/${uId}`);
+
+        if (!res.ok) return; // Silent fail if no portfolios yet
+
+        const portfolios = await res.json();
+        let saved = null;
+
+        if (currentPortfolioId) {
+          saved = portfolios.find(p => p.id == currentPortfolioId);
+          if (!saved) {
+            console.warn("Portfolio ID not found in database for this user.");
+            currentPortfolioId = null; // Reset invalid ID
+            return;
+          }
+        } else {
+          // No ID in URL, just return
+          return;
+        }
+
+        if (saved) {
+          const parsed = JSON.parse(saved.portfolioData);
+          console.log("Parsed portfolio data:", parsed);
+
+          // Load data into slides
+          const allSlides = document.querySelectorAll(".slide");
+          allSlides.forEach((slide, i) => {
+            const ta = slide.querySelector("textarea");
+            const img = slide.querySelector("img");
+            const overlay = slide.querySelector(".edit-overlay");
+            const imgBox = slide.querySelector(".image-box");
+
+            if (parsed.slides && parsed.slides[i]) {
+              if (ta && parsed.slides[i].content !== undefined) {
+                ta.value = parsed.slides[i].content;
+                if (isViewMode) {
+                  ta.disabled = true;
+                  ta.style.background = "#f9fafb";
+                  ta.style.cursor = "default";
+                }
+              }
+              if (img && parsed.slides[i].image) {
+                img.src = parsed.slides[i].image;
+              }
+              if (isViewMode) {
+                if (overlay) overlay.style.display = "none";
+                if (imgBox) imgBox.style.pointerEvents = "none";
+              }
+            }
+          });
+          console.log("Portfolio content loaded in READ-ONLY mode!");
+        }
+
+      } catch (err) {
+        console.error("Error loading saved portfolio:", err);
+      }
+    }
+
+    /* SAVE PORTFOLIO (VIA BACKEND) */
+    async function savePortfolio() {
+      if (isSaving || isViewMode) return;
+
+      const slidesData = [];
+      document.querySelectorAll(".slide").forEach(slide => {
+        const title = slide.querySelector("h1")?.innerText || "";
+        const ta = slide.querySelector("textarea");
+        const img = slide.querySelector("img");
+        slidesData.push({
+          title,
+          content: ta ? ta.value.trim() : "",
+          image: img ? img.src : ""
+        });
+      });
+
+      const userId = sessionStorage.getItem("userId");
+      if (!userId) {
+        alert("Please login first");
+        return;
+      }
+
+      const portfolioData = {
+        userId: parseInt(userId),
+        portfolioData: JSON.stringify({
+          template: template,
+          slides: slidesData,
+          createdAt: new Date().toISOString()
+        })
+      };
+
+      if (currentPortfolioId) {
+        portfolioData.id = parseInt(currentPortfolioId);
+      }
+
+      isSaving = true;
+      const saveBtn = document.querySelector(".professional-save-btn");
+      if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.style.opacity = "0.7";
+        saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+      }
+
+      try {
+        const res = await fetch("http://localhost:8080/api/portfolio/save", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(portfolioData)
+        });
+
+        if (res.ok) {
+          // Attempt to get the ID from response to avoid creating duplicates
+          try {
+            const savedData = await res.json();
+            if (savedData && savedData.id && !currentPortfolioId) {
+              currentPortfolioId = savedData.id;
+              const newUrl = new URL(window.location);
+              newUrl.searchParams.set("portfolioId", currentPortfolioId);
+              window.history.replaceState({}, "", newUrl);
+              console.log("URL updated with new Portfolio ID:", currentPortfolioId);
+            }
+          } catch (e) {
+            console.warn("Could not parse save response, URL not updated", e);
+          }
+
+          const msg = document.getElementById("saveMsg");
+          msg.textContent = "Your portfolio has been saved successfully";
+          msg.style.display = "block";
+          setTimeout(() => {
+            msg.style.display = "none";
+          }, 2500);
+
+        } else {
+          const errorText = await res.text();
+          throw new Error(`Server error (${res.status}): ${errorText || 'Unknown error'}`);
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+        alert("Error saving to database: " + err.message);
+      } finally {
+        isSaving = false;
+        if (saveBtn) {
+          saveBtn.disabled = false;
+          saveBtn.style.opacity = "1";
+          saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Save Portfolio';
+        }
+      }
+    }
+
+    // Call load function after slides are rendered
+    setTimeout(() => {
+      loadSavedPortfolio();
+    }, 200);
+  </script>
+
+  <div id="saveMsg" style="
+    position:fixed;
+    bottom:30px;
+    left:50%;
+    transform:translateX(-50%);
+    background:#23ab60;
+    color:#fff;
+    padding:14px 28px;
+    border-radius:30px;
+    font-size:16px;
+    display:none;
+    box-shadow:0 8px 25px rgba(0,0,0,.2);
+    z-index:9999;
+  ">
+    Your portfolio has been saved successfully
+  </div>
+</body>
+
+</html>
