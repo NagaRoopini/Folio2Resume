@@ -102,7 +102,7 @@ Backend is containerized using Docker.
 
 ## 👩‍💻 Developed By
 
-**Naga Roopini Battu**  
+**Battu Naga Roopini**  
 B.Tech IT Student  
 Full Stack Developer | Java | Spring Boot | MySQL 
 
