@@ -35,9 +35,7 @@ Folio2Resume is a full-stack web application that allows users to create, manage
 - REST APIs
 - Deployed on **Render**
 
-### 🔹 Database
-- MySQL (MariaDB)
-- Hosted on **Railway**
+
 
 ---
 
