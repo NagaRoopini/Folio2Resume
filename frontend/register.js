@@ -45,8 +45,11 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
             password: password
         })
     })
-    .then(res => {
-        if (!res.ok) throw new Error();
+    .then(async res => {
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(errText || "Registration failed");
+        }
         return res.text();
     })
     .then(() => {
@@ -58,8 +61,8 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
             window.location.href = "login.html";
         }, 1200);
     })
-    .catch(() => {
-        emailError.innerText = "User with this email already registered";
+    .catch((err) => {
+        emailError.innerText = err.message || "An error occurred during registration";
         emailError.style.display = "block";
     });
 });

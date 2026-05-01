@@ -32,7 +32,7 @@ public class ForgotPasswordController {
     @PostMapping("/send-otp")
     public ResponseEntity<?> sendOtp(@RequestParam String email) {
 
-        if (userRepository.findByEmail(email).isEmpty()) {
+        if (userRepository.findFirstByEmail(email).isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body("Email not registered");
@@ -60,7 +60,7 @@ public class ForgotPasswordController {
     @PostMapping("/reset-password")
     public ResponseEntity<?> resetPassword(@RequestParam String email,
                                            @RequestParam String newPassword) {
-        return userRepository.findByEmail(email).map(user -> {
+        return userRepository.findFirstByEmail(email).map(user -> {
             user.setPassword(newPassword);
             userRepository.save(user);
             return ResponseEntity.ok("Password reset successful");

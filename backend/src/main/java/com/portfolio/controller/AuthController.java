@@ -26,7 +26,7 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody User user) {
 
-        if (repo.findByEmail(user.getEmail()).isPresent()) {
+        if (repo.findFirstByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity
                     .status(HttpStatus.CONFLICT)
                     .body("User already registered");
@@ -40,7 +40,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User req) {
 
-        return repo.findByEmail(req.getEmail())
+        return repo.findFirstByEmail(req.getEmail())
                 .filter(u -> u.getPassword().equals(req.getPassword()))
                 .<ResponseEntity<?>>map(u -> ResponseEntity.ok(u))
                 .orElse(
