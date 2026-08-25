@@ -2,8 +2,7 @@
 
 Folio2Resume is a full-stack web application that allows users to create, manage, and generate professional resumes from their portfolio data.
 
-🔗 Live Frontend: https://folio2-resume.vercel.app  
-🔗 Live Backend: https://folio2resume-backend.onrender.com  
+🔗 Live Demo: https://folio2resume-backend.onrender.com  
 
 ---
 
