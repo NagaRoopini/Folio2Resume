@@ -24,7 +24,7 @@ Folio2Resume is a full-stack web application that allows users to create, manage
 - HTML
 - CSS
 - JavaScript
-- Deployed on **Vercel**
+- Deployed on **Render**
 
 ### 🔹 Backend
 - Java
