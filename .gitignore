@@ -1,0 +1,27 @@
+# Build outputs
+target/
+bin/
+out/
+
+# Dependencies
+node_modules/
+vendor/
+
+# IDE settings
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Database / OS files
+.DS_Store
+Thumbs.db
+*.db
+
+# Temporary files
+tmp/
+temp/
