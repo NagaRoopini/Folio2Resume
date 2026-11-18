@@ -7,7 +7,7 @@ document.getElementById("loginForm").addEventListener("submit", function (e) {
 
     error.innerText = "";
 
-    fetch("http://localhost:8000/api/auth/login", {
+    fetch("https://folio2resume.onrender.com/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

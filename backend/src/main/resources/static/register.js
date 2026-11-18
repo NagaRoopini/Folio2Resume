@@ -36,7 +36,7 @@ document.getElementById("registerForm").addEventListener("submit", function (e) 
     }
 
     // ✅ BACKEND REGISTER
-    fetch("http://localhost:8000/api/auth/register", {        method: "POST",
+    fetch("https://folio2resume.onrender.com/api/auth/register", {        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
             name: name,
