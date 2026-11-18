@@ -12,4 +12,4 @@ COPY --from=build /app/target/backend-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 3000
 
-ENTRYPOINT ["sh", "-c", "java -jar app.jar --server.port=${PORT:-3000}"]
+ENTRYPOINT ["sh", "-c", "java -Xmx192m -XX:MaxMetaspaceSize=128m -jar app.jar --server.port=${PORT:-3000}"]
